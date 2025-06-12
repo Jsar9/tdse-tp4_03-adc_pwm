@@ -88,8 +88,12 @@ void task_pwm_update(void *parameters)
 
 	if ( shared_data->adc_end_of_conversion ) {
 		shared_data->adc_end_of_conversion = false;
-		setPWM(htim3, TIM_CHANNEL_1, period, shared_data->pwm_active);
-		if ( step>0 ) {
+		uint16_t adc_val = shared_data->adc_value; //Obtiene el valor salido del ADC
+		uint16_t new_duty = (adc_val * period) / 4095;  //Se hace la conversión del duty cycle considerando los 12bits de cuenta del ADC
+		setPWM(htim3, TIM_CHANNEL_1, period, new_duty); //Se setea el nuevo duty cycle como tiempo activo del PWM
+		shared_data->pwm_active = new_duty; //Se actualiza el nuevo duty_cycle
+
+		/*if ( step>0 ) {
 			if ( period-step<=shared_data->pwm_active ) {
 				step = step * -1;
 			}
@@ -99,7 +103,7 @@ void task_pwm_update(void *parameters)
 				step = step * -1;
 			}
 		}
-		shared_data->pwm_active = shared_data->pwm_active + step;
+		shared_data->pwm_active = shared_data->pwm_active + step;*/
 	}
 }
 
